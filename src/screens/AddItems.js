@@ -9,9 +9,7 @@ import {
   Image
 } from "react-native";
 import { ImagePicker, Permissions } from "expo";
-
 import { addItem } from "../services/ItemService";
-import { db } from '../config/db';
 
 import { CheckBox } from "react-native-elements";
 
@@ -31,15 +29,6 @@ export class AddItems extends React.Component {
   resetState() {
     this.setState(initialState);
   }
-
-   uploadImage = async (uri, imageName) => {
-    const response = await fetch(uri);
-    const blob = await response.blob();
-    
-    var ref = db.storage().ref().child("images/" + imageName)
-    return ref.put(blob);
-
-  };
 
   selectPicture = async () => {
     await Permissions.askAsync(Permissions.CAMERA_ROLL);
@@ -94,8 +83,8 @@ export class AddItems extends React.Component {
               this.state.img,
               this.state.checked
             );
-            this.uploadImage(this.state.photo, "teste-imagem"
-            );
+            // this.uploadImage(this.state.photo, "teste-imagem"
+            // );
             this.resetState();
             Alert.alert("Alerta", "Produto salvo com sucesso", [
               {
