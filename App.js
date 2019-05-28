@@ -1,6 +1,6 @@
 import React from 'react';
 import { createStackNavigator, createAppContainer } from 'react-navigation';
-import { Home, Detalhes, AddItems, EditItems } from './src/screens';
+import { Home, Detalhes, AddItems, EditItems, ImageUpload } from './src/screens';
 
 const App = createStackNavigator(
   {
@@ -27,10 +27,17 @@ const App = createStackNavigator(
       navigationOptions: {
         title: 'Editar produto'
       }
+    },
+    ImageUpload: {
+      screen: ImageUpload,
+      navigationOptions: {
+        title: 'Enviar foto'
+      }
     }
+
   },
   {
-    initialRouteName: 'Home'
+    initialRouteName: 'ImageUpload'
   }
 );
 

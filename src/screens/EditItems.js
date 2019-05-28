@@ -7,29 +7,102 @@ import {
   StyleSheet,
   Alert
 } from "react-native";
-import axios from "axios";
-
+import { removeItem, updateItem } from "../services/ItemService";
 import { CheckBox } from "react-native-elements";
 
-export class EditItems extends React.Component {
+const initialState = {
+  id: "",
+  nome: "",
+  valor: "",
+  img: "",
+  checked: false
+};
 
+export class EditItems extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = initialState;
+    const item = this.props.navigation.getParam("item");
+    this.state.id = item[0];
+    this.state.nome = item[1].nome;
+    this.state.valor = item[1].valor;
+    this.state.img = item[1].img;
+    this.state.checked = item[1].destaque;
+  }
+  resetState() {
+    this.setState(initialState);
+  }
   checkDados = (nome, valor, imagem, checked) => {
     Alert.alert(
       "nome: " +
-      nome +
-      " valor: " +
-      valor +
-      " img: " +
-      imagem +
-      " destaque: " +
-      checked
+        nome +
+        " valor: " +
+        valor +
+        " img: " +
+        imagem +
+        " destaque: " +
+        checked
     );
   };
-  render() {
-    const { navigation } = this.props;
-    const item = this.props.navigation.getParam('item')
 
-    console.log(item)
+  handleNome = e => {
+    this.setState({
+      nome: e
+    });
+  };
+  handleValor = e => {
+    this.setState({
+      valor: e
+    });
+  };
+  handleImagem = e => {
+    this.setState({
+      img: e
+    });
+  };
+
+  handleSubmit() {
+    Alert.alert(
+      "Confirmação",
+      "Deseja editar este item?",
+      [
+        {
+          text: "Cancelar",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel"
+        },
+        {
+          text: "OK",
+          onPress: () => {
+            updateItem(
+              this.state.id,
+              this.state.nome,
+              this.state.valor,
+              this.state.img,
+              this.state.checked
+            );
+            // this.resetState();
+            Alert.alert("Confirmação", "Produto atualizado com sucesso", [
+              {
+                text: "Voltar para Home",
+                onPress: () => this.props.navigation.navigate("Home")
+              },
+              {
+                text: "Continuar editando",
+                onPress: () => this.props.navigation.navigate("EditItems")
+              }
+            ]);
+            console.log("OK Pressed");
+          }
+        }
+      ],
+      { cancelable: false }
+    );
+  }
+
+
+  render() {
+    console.log(this.state);
     return (
       <View style={styles.container}>
         <TextInput
@@ -39,7 +112,7 @@ export class EditItems extends React.Component {
           placeholderTextColor="#9a73ef"
           autoCapitalize="none"
           onChangeText={this.handleNome}
-          value={item[1].nome}
+          value={this.state.nome}
         />
 
         <TextInput
@@ -49,7 +122,7 @@ export class EditItems extends React.Component {
           placeholderTextColor="#9a73ef"
           autoCapitalize="none"
           onChangeText={this.handleValor}
-          value={item[1].valor}
+          value={this.state.valor}
         />
         <TextInput
           style={styles.input}
@@ -58,11 +131,11 @@ export class EditItems extends React.Component {
           placeholderTextColor="#9a73ef"
           autoCapitalize="none"
           onChangeText={this.handleImagem}
-          value={item[1].img}
+          value={this.state.img}
         />
         <CheckBox
           title="Produto em Destaque"
-          checked={item[1].destaque}
+          checked={this.state.checked}
           onPress={() => this.setState({ checked: !this.state.checked })}
         />
 
@@ -70,19 +143,6 @@ export class EditItems extends React.Component {
           style={styles.submitButton}
           onPress={() =>
             this.checkDados(
-              item[1].nome,
-              item[1].valor,
-              item[1].img,
-              item[1].destaque
-            )
-          }
-        >
-          <Text style={styles.submitButtonText}> Validar </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.submitButton}
-          onPress={() =>
-            this.editar(
               this.state.nome,
               this.state.valor,
               this.state.img,
@@ -90,7 +150,24 @@ export class EditItems extends React.Component {
             )
           }
         >
-          <Text style={styles.submitButtonText}> Salvar </Text>
+          <Text style={styles.submitButtonText}> Validar </Text>
+        </TouchableOpacity>
+        {/* Atualizar item */}
+        <TouchableOpacity
+          style={styles.submitButton}
+          onPress={() => this.handleSubmit()}
+        >
+          <Text style={styles.submitButtonText}> Atualizar </Text>
+        </TouchableOpacity>
+        {/* Apagar item */}
+        <TouchableOpacity
+          style={styles.submitButton}
+          onPress={
+            () => removeItem(item[0])
+            // console.log(item[0])
+          }
+        >
+          <Text style={styles.submitButtonText}> Apagar item </Text>
         </TouchableOpacity>
       </View>
     );
