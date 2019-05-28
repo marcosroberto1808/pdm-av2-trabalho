@@ -4,49 +4,83 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
-  StyleSheet
+  StyleSheet,
+  Alert
 } from "react-native";
-import axios from "axios";
-
+import { addItem } from '../services/ItemService';
 import { CheckBox } from "react-native-elements";
 
 export class AddItems extends React.Component {
-  state = {
-    nome: "",
-    valor: "",
-    img: ""
-  };
-  handleNome = text => {
-    this.setState({ nome: text });
-  };
-  handleValor = text => {
-    this.setState({ valor: text });
-  };
-  handleImagem = text => {
-    this.setState({ img: text });
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      nome: "",
+      valor: "",
+      img: ""
+    };
   };
 
-  login = (nome, valor, imagem, destaque) => {
-    alert(
-      "nome: " +
-        nome +
-        " valor: " +
-        valor +
-        " img: " +
-        imagem +
-        " destaque: " +
-        destaque
+  handleNome = e => {
+    this.setState({
+      nome: e
+    });
+  };
+  handleValor = e => {
+    this.setState({
+      valor: e
+    });
+  };
+  handleImagem = e => {
+    this.setState({
+      img: e
+    });
+  };
+  handleSubmit() {
+    Alert.alert(
+      'Confirmação',
+      'Deseja confirmar?',
+      [
+        {
+          text: 'Cancelar',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        {
+          text: 'OK', onPress: () => {
+            addItem(this.state.nome,
+              this.state.valor,
+              this.state.img,
+              this.state.checked);
+            Alert.alert(
+              'Alerta',
+              'Produto salvo com sucesso',
+              [
+                { text: 'Voltar para Home', onPress: () => this.props.navigation.navigate('Home') },
+                { text: 'Adicionar outro', onPress: () => this.props.navigation.navigate('AddItems') }
+
+              ]
+
+            )
+            console.log('OK Pressed')
+          }
+        },
+      ],
+      { cancelable: false },
     );
   };
 
-  salvar = (nome, valor, imagem, destaque) => {
-     const produto = {
-         "nome": nome,
-         "valor": valor,
-         "img": imagem,
-         "destaque": destaque
-     }
-     axios.post('https://myfood-73b65.firebaseio.com/produtos.json', produto);
+  checkDados = (nome, valor, imagem, checked) => {
+    Alert.alert(
+      "nome: " +
+      nome +
+      " valor: " +
+      valor +
+      " img: " +
+      imagem +
+      " destaque: " +
+      checked
+    );
   };
 
   render() {
@@ -86,7 +120,7 @@ export class AddItems extends React.Component {
         <TouchableOpacity
           style={styles.submitButton}
           onPress={() =>
-            this.login(
+            this.checkDados(
               this.state.nome,
               this.state.valor,
               this.state.img,
@@ -99,12 +133,7 @@ export class AddItems extends React.Component {
         <TouchableOpacity
           style={styles.submitButton}
           onPress={() =>
-            this.salvar(
-              this.state.nome,
-              this.state.valor,
-              this.state.img,
-              this.state.checked
-            )
+            this.handleSubmit()
           }
         >
           <Text style={styles.submitButtonText}> Salvar </Text>

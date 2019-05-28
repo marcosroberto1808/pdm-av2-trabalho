@@ -4,51 +4,27 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
-  StyleSheet
+  StyleSheet,
+  Alert
 } from "react-native";
 import axios from "axios";
 
 import { CheckBox } from "react-native-elements";
 
 export class EditItems extends React.Component {
-  state = {
-    nome: "",
-    valor: "",
-    img: ""
-  };
-  handleNome = text => {
-    this.setState({ nome: text });
-  };
-  handleValor = text => {
-    this.setState({ valor: text });
-  };
-  handleImagem = text => {
-    this.setState({ img: text });
-  };
 
-  login = (nome, valor, imagem, destaque) => {
-    alert(
+  checkDados = (nome, valor, imagem, checked) => {
+    Alert.alert(
       "nome: " +
-        nome +
-        " valor: " +
-        valor +
-        " img: " +
-        imagem +
-        " destaque: " +
-        destaque
+      nome +
+      " valor: " +
+      valor +
+      " img: " +
+      imagem +
+      " destaque: " +
+      checked
     );
   };
-
-  editar = (nome, valor, imagem, destaque) => {
-     const produto = {
-         "nome": nome,
-         "valor": valor,
-         "img": imagem,
-         "destaque": destaque
-     }
-     axios.post('https://myfood-73b65.firebaseio.com/produtos.json', produto);
-  };
-
   render() {
     const { navigation } = this.props;
     const item = this.props.navigation.getParam('item')
@@ -86,22 +62,22 @@ export class EditItems extends React.Component {
         />
         <CheckBox
           title="Produto em Destaque"
-          checked={this.state.checked}
+          checked={item[1].destaque}
           onPress={() => this.setState({ checked: !this.state.checked })}
         />
 
         <TouchableOpacity
           style={styles.submitButton}
           onPress={() =>
-            this.login(
-              this.state.nome,
-              this.state.valor,
-              this.state.img,
-              this.state.checked
+            this.checkDados(
+              item[1].nome,
+              item[1].valor,
+              item[1].img,
+              item[1].destaque
             )
           }
         >
-          <Text style={styles.submitButtonText}> Inserir </Text>
+          <Text style={styles.submitButtonText}> Validar </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.submitButton}

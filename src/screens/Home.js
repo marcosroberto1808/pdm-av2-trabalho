@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, TouchableOpacity, View, Text, Image, Dimensions } from 'react-native';
-import axios from 'axios';
+import { db } from '../config/db';
 
 export class Home extends React.Component {
     constructor(props) {
@@ -11,14 +11,16 @@ export class Home extends React.Component {
     }
 
     componentDidMount() {
-        getProdutos()
-            .then(response => {
-                this.setState({ data: response.data });
-            })
-            .catch(error => {
-                console.log(error);
-            });
-    }
+        this.getProdutos();
+      }
+    getProdutos = () => {
+        db
+          .ref('produtos/')
+          .on('value', snapshot => {
+            console.log(snapshot.val());
+            this.setState({ data: snapshot.val() });
+          });
+      };
 
     render() {
         const { width } = Dimensions.get('window');
@@ -81,5 +83,3 @@ export class Home extends React.Component {
         );
     }
 }
-
-const getProdutos = () => axios.get('https://myfood-73b65.firebaseio.com/produtos.json');
