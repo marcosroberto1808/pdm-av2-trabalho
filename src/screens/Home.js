@@ -23,7 +23,7 @@ export class Home extends React.Component {
   }
   getProdutos = () => {
     db.ref("produtos/").on("value", snapshot => {
-      console.log(snapshot.val());
+      // console.log(snapshot.val());
       this.setState({ data: snapshot.val() });
     });
   };
@@ -40,7 +40,7 @@ export class Home extends React.Component {
           {this.state.data &&
             Object.entries(this.state.data).map(e => {
               if (e[1].destaque == true) {
-                console.log(e);
+                // console.log(e);
                 return (
                   <View key={e[0]}>
                     <TouchableOpacity
@@ -66,7 +66,7 @@ export class Home extends React.Component {
           {this.state.data &&
             Object.entries(this.state.data).map(e => {
               if (e[1].destaque == false) {
-                console.log(e);
+                // console.log(e);
                 return (
                   <View key={e[0]}>
                     <TouchableOpacity

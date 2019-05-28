@@ -100,6 +100,39 @@ export class EditItems extends React.Component {
     );
   }
 
+  handleDelete() {
+    Alert.alert(
+      "Confirmação",
+      "Deseja apagar este item?",
+      [
+        {
+          text: "Cancelar",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel"
+        },
+        {
+          text: "OK",
+          onPress: () => {
+            removeItem(this.state.id)
+            // this.resetState();
+            Alert.alert("Confirmação", "Produto removido com sucesso", [
+              {
+                text: "Voltar para Home",
+                onPress: () => this.props.navigation.navigate("Home")
+              },
+              // {
+              //   text: "Continuar editando",
+              //   onPress: () => this.props.navigation.navigate("EditItems")
+              // }
+            ]);
+            console.log("OK Pressed");
+          }
+        }
+      ],
+      { cancelable: false }
+    );
+  }
+
 
   render() {
     console.log(this.state);
@@ -163,7 +196,7 @@ export class EditItems extends React.Component {
         <TouchableOpacity
           style={styles.submitButton}
           onPress={
-            () => removeItem(item[0])
+            () => this.handleDelete()
             // console.log(item[0])
           }
         >

@@ -2,6 +2,7 @@ import React from 'react';
 import { createStackNavigator, createAppContainer } from 'react-navigation';
 import { Home, Detalhes, AddItems, EditItems, ImageUpload } from './src/screens';
 
+console.disableYellowBox = true;
 const App = createStackNavigator(
   {
     Home: {
@@ -37,7 +38,7 @@ const App = createStackNavigator(
 
   },
   {
-    initialRouteName: 'ImageUpload'
+    initialRouteName: 'Home'
   }
 );
 
