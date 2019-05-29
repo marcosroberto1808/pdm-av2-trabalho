@@ -8,17 +8,19 @@ import {
   Alert,
   Image
 } from "react-native";
+import { CheckBox } from "react-native-elements";
 import { ImagePicker, Permissions } from "expo";
 import { addItem } from "../services/ItemService";
+import { storage } from "../config/db";
+import uuid from 'uuid';
 
-import { CheckBox } from "react-native-elements";
 
 const initialState = {
   nome: "",
   valor: "",
-  img: "",
+  image: "",
   checked: false,
-  photo: null
+  uploading: false,
 };
 
 export class AddItems extends React.Component {
@@ -30,23 +32,49 @@ export class AddItems extends React.Component {
     this.setState(initialState);
   }
 
-  selectPicture = async () => {
+  // permissoes
+  async componentDidMount() {
     await Permissions.askAsync(Permissions.CAMERA_ROLL);
-    const { cancelled, uri } = await ImagePicker.launchImageLibraryAsync({
-      // aspect: 1,
-      allowsEditing: true
+    await Permissions.askAsync(Permissions.CAMERA);
+  }
+
+  // Tirar foto
+  takePhoto = async () => {
+    let pickerResult = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
     });
-    if (!cancelled) {
-      this.setState({ photo: uri });
-    }
+
+    this._handleImagePicked(pickerResult);
+
   };
 
-  takePicture = async () => {
-    await Permissions.askAsync(Permissions.CAMERA);
-    const { cancelled, uri } = await ImagePicker.launchCameraAsync({
-      allowsEditing: false
+  // Pegar da galeria
+  pickImage = async () => {
+    let pickerResult = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
     });
-    this.setState({ photo: uri });
+
+    this._handleImagePicked(pickerResult);
+  };
+
+  // HANDLERS
+  _handleImagePicked = async pickerResult => {
+    try {
+      this.setState({ uploading: true });
+
+      if (!pickerResult.cancelled) {
+        uploadUrl = await uploadImageAsync(pickerResult.uri);
+        this.setState({ image: uploadUrl });
+        console.log(this.state.image)
+      }
+    } catch (e) {
+      console.log(e);
+      alert('Upload failed, sorry :(');
+    } finally {
+      this.setState({ uploading: false });
+    }
   };
 
   handleNome = e => {
@@ -54,16 +82,19 @@ export class AddItems extends React.Component {
       nome: e
     });
   };
+
   handleValor = e => {
     this.setState({
       valor: e
     });
   };
+
   handleImagem = e => {
     this.setState({
-      img: e
+      image: e
     });
   };
+
   handleSubmit() {
     Alert.alert(
       "Confirmação",
@@ -80,11 +111,9 @@ export class AddItems extends React.Component {
             addItem(
               this.state.nome,
               this.state.valor,
-              this.state.img,
+              this.state.image,              
               this.state.checked
             );
-            // this.uploadImage(this.state.photo, "teste-imagem"
-            // );
             this.resetState();
             Alert.alert("Alerta", "Produto salvo com sucesso", [
               {
@@ -107,13 +136,13 @@ export class AddItems extends React.Component {
   checkDados = (nome, valor, imagem, checked) => {
     Alert.alert(
       "nome: " +
-        nome +
-        " valor: " +
-        valor +
-        " img: " +
-        imagem +
-        " destaque: " +
-        checked
+      nome +
+      " valor: " +
+      valor +
+      " img: " +
+      imagem +
+      " destaque: " +
+      checked
     );
   };
 
@@ -147,7 +176,7 @@ export class AddItems extends React.Component {
           placeholderTextColor="#9a73ef"
           autoCapitalize="none"
           onChangeText={this.handleImagem}
-          value={this.state.img}
+          value={this.state.image}
         />
         <CheckBox
           title="Produto em Destaque"
@@ -155,19 +184,19 @@ export class AddItems extends React.Component {
           onPress={() => this.setState({ checked: !this.state.checked })}
         />
         <View>
-          <Image style={{width: 120, height: 120, backgroundColor: 'gray'}} source={{ uri: this.state.photo }} />
+          <Image style={{ width: 120, height: 120, backgroundColor: 'gray' }} source={{ uri: this.state.image }} />
 
           <TouchableOpacity
             style={styles.submitButton}
-            onPress={this.selectPicture}
-            
+            onPress={this.pickImage}
+
           >
             <Text style={styles.submitButtonText}>Galeria</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.submitButton}
-            onPress={this.takePicture}
-            // onPress={this.onChooseImagePress}
+            onPress={this.takePhoto}
+
           >
             <Text style={styles.submitButtonText}>Camera</Text>
           </TouchableOpacity>
@@ -179,7 +208,7 @@ export class AddItems extends React.Component {
             this.checkDados(
               this.state.nome,
               this.state.valor,
-              this.state.img,
+              this.state.image,
               this.state.checked
             )
           }
@@ -223,3 +252,29 @@ const styles = StyleSheet.create({
     color: "white"
   }
 });
+
+
+async function uploadImageAsync(uri) {
+  const blob = await new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+      resolve(xhr.response);
+    };
+    xhr.onerror = function (e) {
+      console.log(e);
+      reject(new TypeError('Network request failed'));
+    };
+    xhr.responseType = 'blob';
+    xhr.open('GET', uri, true);
+    xhr.send(null);
+  });
+
+  const ref = storage
+    .ref()
+    .child("images/" + uuid.v4());
+  const snapshot = await ref.put(blob);
+
+  blob.close();
+
+  return await snapshot.ref.getDownloadURL();
+}

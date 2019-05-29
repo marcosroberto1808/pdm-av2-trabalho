@@ -50,7 +50,7 @@ export class Home extends React.Component {
                         {e[1].nome} - R$ {e[1].valor}
                       </Text>
                       <Image
-                        source={{ uri: e[1].img }}
+                        source={{ uri: e[1].image }}
                         style={{ width, height }}
                       />
                     </TouchableOpacity>
@@ -76,7 +76,7 @@ export class Home extends React.Component {
                         {e[1].nome} - R$ {e[1].valor}
                       </Text>
                       <Image
-                        source={{ uri: e[1].img }}
+                        source={{ uri: e[1].image }}
                         style={{ width, height }}
                       />
                     </TouchableOpacity>

@@ -20,7 +20,7 @@ export class Detalhes extends React.Component {
           // onPress={() => this.setState({ checked: !this.state.checked })}
         />
 
-        <Image source={{ uri: item[1].img }} style={{ width, height: 300 }} />
+        <Image source={{ uri: item[1].image }} style={{ width, height: 300 }} />
 
         <TouchableOpacity
           style={styles.submitButton}

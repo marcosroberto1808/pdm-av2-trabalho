@@ -7,7 +7,7 @@ export const addItem =  (nome_input, valor_input, img_input, destaque_input) => 
     db.ref('/produtos').push({
         "nome": nome_input,
         "valor": valor_input,
-        "img": img_input,
+        "image": img_input,
         "destaque": destaque_input
     });
 }
@@ -23,7 +23,7 @@ export const updateItem =  (item_key, nome_input, valor_input, img_input, destaq
         {
         "nome": nome_input,
         "valor": valor_input,
-        "img": img_input,
+        "image": img_input,
         "destaque": destaque_input
     });
 }

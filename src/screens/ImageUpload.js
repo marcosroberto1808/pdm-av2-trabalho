@@ -1,52 +1,56 @@
 import React from "react";
 import { Image, StyleSheet, Button, Text, View, Alert } from "react-native";
 import { ImagePicker, Permissions } from "expo";
-import firebase from 'firebase';
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAx_k_5yZvOcmORZbvAYT8Ce94KCYC4P6E",
-  authDomain: "myfood-73b65.firebaseapp.com",
-  databaseURL: "https://myfood-73b65.firebaseio.com",
-  projectId: "myfood-73b65",
-  storageBucket: "myfood-73b65.appspot.com",
-  messagingSenderId: "721790040542",
-  appId: "1:721790040542:web:4d2b72a621ce8a36"
-};
+import { storage } from "../config/db";
+import uuid from 'uuid';
 
 export class ImageUpload extends React.Component {
 
   constructor(props) {
     super(props);
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
     this.state = {
-      data: null
+      image: null,
+      uploading: false,
     };
   }
 
-onChooseImagePress = async () => {
-    let result = await ImagePicker.launchCameraAsync();
+  async componentDidMount() {
+    await Permissions.askAsync(Permissions.CAMERA_ROLL);
+    await Permissions.askAsync(Permissions.CAMERA);
+  }
 
-    if(!result.cancelled) {
-        this.uploadImage(result.uri, "test-image");
+  onChooseImagePress = async () => {
+    let pickerResult = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+    });
+
+    this._handleImagePicked(pickerResult);
+
+  };
+
+  _handleImagePicked = async pickerResult => {
+    try {
+      this.setState({ uploading: true });
+
+      if (!pickerResult.cancelled) {
+        uploadUrl = await uploadImageAsync(pickerResult.uri);
+        this.setState({ image: uploadUrl });
+        console.log(this.state.image)
+      }
+    } catch (e) {
+      console.log(e);
+      alert('Upload failed, sorry :(');
+    } finally {
+      this.setState({ uploading: false });
     }
-}
-
-uploadImage = async (uri, imageName) => {
-    const response = await fetch(uri);
-    const blob = await response.blob();
-
-    var ref = Firebase.storage().ref().child("images/" + imageName);
-    return ref.put(blob)
-}
-
-
+  };
+  
   render() {
     return (
-    <View style={styles.container}>
+      <View style={styles.container}>
         <Button title="Escolha a imagem..." onPress={this.onChooseImagePress} />
-    </View>
+      </View>
     );
   }
 }
@@ -54,3 +58,28 @@ uploadImage = async (uri, imageName) => {
 const styles = StyleSheet.create({
   container: { flex: 1, paddingTop: 50, alignItems: "center" }
 });
+
+async function uploadImageAsync(uri) {
+  const blob = await new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+      resolve(xhr.response);
+    };
+    xhr.onerror = function (e) {
+      console.log(e);
+      reject(new TypeError('Network request failed'));
+    };
+    xhr.responseType = 'blob';
+    xhr.open('GET', uri, true);
+    xhr.send(null);
+  });
+
+  const ref = storage
+    .ref()
+    .child("images/" + uuid.v4());
+  const snapshot = await ref.put(blob);
+
+  blob.close();
+
+  return await snapshot.ref.getDownloadURL();
+}

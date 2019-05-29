@@ -38,7 +38,7 @@ const App = createStackNavigator(
 
   },
   {
-    initialRouteName: 'ImageUpload'
+    initialRouteName: 'Home'
   }
 );
 

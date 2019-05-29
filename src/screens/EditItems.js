@@ -14,7 +14,7 @@ const initialState = {
   id: "",
   nome: "",
   valor: "",
-  img: "",
+  image: "",
   checked: false
 };
 
@@ -26,7 +26,7 @@ export class EditItems extends React.Component {
     this.state.id = item[0];
     this.state.nome = item[1].nome;
     this.state.valor = item[1].valor;
-    this.state.img = item[1].img;
+    this.state.image = item[1].image;
     this.state.checked = item[1].destaque;
   }
   resetState() {
@@ -38,7 +38,7 @@ export class EditItems extends React.Component {
         nome +
         " valor: " +
         valor +
-        " img: " +
+        " image: " +
         imagem +
         " destaque: " +
         checked
@@ -57,7 +57,7 @@ export class EditItems extends React.Component {
   };
   handleImagem = e => {
     this.setState({
-      img: e
+      image: e
     });
   };
 
@@ -78,7 +78,7 @@ export class EditItems extends React.Component {
               this.state.id,
               this.state.nome,
               this.state.valor,
-              this.state.img,
+              this.state.image,
               this.state.checked
             );
             // this.resetState();
@@ -164,7 +164,7 @@ export class EditItems extends React.Component {
           placeholderTextColor="#9a73ef"
           autoCapitalize="none"
           onChangeText={this.handleImagem}
-          value={this.state.img}
+          value={this.state.image}
         />
         <CheckBox
           title="Produto em Destaque"
@@ -178,7 +178,7 @@ export class EditItems extends React.Component {
             this.checkDados(
               this.state.nome,
               this.state.valor,
-              this.state.img,
+              this.state.image,
               this.state.checked
             )
           }
