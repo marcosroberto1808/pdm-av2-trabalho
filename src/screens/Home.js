@@ -52,6 +52,7 @@ export class Home extends React.Component {
                       <Image
                         source={{ uri: e[1].image }}
                         style={{ width, height }}
+                        resizeMode="center"
                       />
                     </TouchableOpacity>
                   </View>
@@ -78,6 +79,7 @@ export class Home extends React.Component {
                       <Image
                         source={{ uri: e[1].image }}
                         style={{ width, height }}
+                        resizeMode="center"
                       />
                     </TouchableOpacity>
                   </View>

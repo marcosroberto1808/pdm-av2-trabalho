@@ -6,14 +6,14 @@ import {
   TextInput,
   StyleSheet,
   Alert,
-  Image
+  Image,
+  ScrollView
 } from "react-native";
 import { CheckBox } from "react-native-elements";
 import { ImagePicker, Permissions } from "expo";
 import { addItem } from "../services/ItemService";
 import { storage } from "../config/db";
-import uuid from 'uuid';
-
+import uuid from "uuid";
 
 const initialState = {
   nome: "",
@@ -21,6 +21,7 @@ const initialState = {
   image: "",
   checked: false,
   uploading: false,
+  tmp_uri: ""
 };
 
 export class AddItems extends React.Component {
@@ -41,39 +42,52 @@ export class AddItems extends React.Component {
   // Tirar foto
   takePhoto = async () => {
     let pickerResult = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [4, 3],
+      allowsEditing: true
+      // aspect: [16, 16]
     });
+    this.setState({ tmp_uri: pickerResult });
+    console.log(this.state.tmp_uri);
 
-    this._handleImagePicked(pickerResult);
-
+    // this._handleImagePicked(pickerResult);
   };
 
   // Pegar da galeria
   pickImage = async () => {
     let pickerResult = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      aspect: [4, 3],
+      allowsEditing: true
+      // aspect: [4, 3]
     });
 
-    this._handleImagePicked(pickerResult);
+    this.setState({ tmp_uri: pickerResult });
+    console.log(this.state.tmp_uri);
+
+    // this._handleImagePicked(pickerResult);
   };
 
   // HANDLERS
   _handleImagePicked = async pickerResult => {
     try {
       this.setState({ uploading: true });
+      // console.log(pickerResult.uri);
+      // console.log(this.state.tmp_uri.uri);
 
       if (!pickerResult.cancelled) {
         uploadUrl = await uploadImageAsync(pickerResult.uri);
         this.setState({ image: uploadUrl });
-        console.log(this.state.image)
+        console.log(this.state.image);
       }
     } catch (e) {
       console.log(e);
-      alert('Upload failed, sorry :(');
+      alert("Upload failed, sorry :(");
     } finally {
       this.setState({ uploading: false });
+      // Salvar item no firebase
+      addItem(
+        this.state.nome,
+        this.state.valor,
+        this.state.image,
+        this.state.checked
+      );
     }
   };
 
@@ -108,21 +122,24 @@ export class AddItems extends React.Component {
         {
           text: "OK",
           onPress: () => {
-            addItem(
-              this.state.nome,
-              this.state.valor,
-              this.state.image,              
-              this.state.checked
-            );
-            this.resetState();
-            Alert.alert("Alerta", "Produto salvo com sucesso", [
+            
+            // Upload tmp_uri no firebase storage
+            this._handleImagePicked(this.state.tmp_uri);
+
+            
+
+            Alert.alert("Confirmação", "Produto salvo com sucesso", [
               {
                 text: "Voltar para Home",
-                onPress: () => this.props.navigation.navigate("Home")
+                onPress: () => {
+                  this.props.navigation.navigate("Home");
+                }
               },
               {
                 text: "Adicionar outro",
-                onPress: () => this.props.navigation.navigate("AddItems")
+                onPress: () => {
+                  this.props.navigation.navigate("AddItems");
+                }
               }
             ]);
             console.log("OK Pressed");
@@ -136,13 +153,13 @@ export class AddItems extends React.Component {
   checkDados = (nome, valor, imagem, checked) => {
     Alert.alert(
       "nome: " +
-      nome +
-      " valor: " +
-      valor +
-      " img: " +
-      imagem +
-      " destaque: " +
-      checked
+        nome +
+        " valor: " +
+        valor +
+        " img: " +
+        imagem +
+        " destaque: " +
+        checked
     );
   };
 
@@ -184,21 +201,23 @@ export class AddItems extends React.Component {
           onPress={() => this.setState({ checked: !this.state.checked })}
         />
         <View>
-          <Image style={{ width: 120, height: 120, backgroundColor: 'gray' }} source={{ uri: this.state.image }} />
+          <Image
+            style={{ width: 120, height: 120, backgroundColor: "gray" }}
+            source={{ uri: this.state.tmp_uri.uri }}
+            resizeMode="center"
+          />
 
           <TouchableOpacity
             style={styles.submitButton}
             onPress={this.pickImage}
-
           >
-            <Text style={styles.submitButtonText}>Galeria</Text>
+            <Text style={styles.submitButtonText}>Escolher da Galeria</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.submitButton}
             onPress={this.takePhoto}
-
           >
-            <Text style={styles.submitButtonText}>Camera</Text>
+            <Text style={styles.submitButtonText}>Tirar Foto</Text>
           </TouchableOpacity>
         </View>
 
@@ -253,25 +272,22 @@ const styles = StyleSheet.create({
   }
 });
 
-
 async function uploadImageAsync(uri) {
   const blob = await new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.onload = function () {
+    xhr.onload = function() {
       resolve(xhr.response);
     };
-    xhr.onerror = function (e) {
+    xhr.onerror = function(e) {
       console.log(e);
-      reject(new TypeError('Network request failed'));
+      reject(new TypeError("Network request failed"));
     };
-    xhr.responseType = 'blob';
-    xhr.open('GET', uri, true);
+    xhr.responseType = "blob";
+    xhr.open("GET", uri, true);
     xhr.send(null);
   });
 
-  const ref = storage
-    .ref()
-    .child("images/" + uuid.v4());
+  const ref = storage.ref().child("images/" + uuid.v4());
   const snapshot = await ref.put(blob);
 
   blob.close();

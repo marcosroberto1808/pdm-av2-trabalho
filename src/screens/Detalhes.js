@@ -1,15 +1,21 @@
-import React from 'react';
-import { View, Text, Image, Dimensions, TouchableOpacity, StyleSheet } from 'react-native';
+import React from "react";
+import {
+  View,
+  Text,
+  Image,
+  Dimensions,
+  TouchableOpacity,
+  StyleSheet
+} from "react-native";
 import { CheckBox } from "react-native-elements";
 
 export class Detalhes extends React.Component {
-
   render() {
-    const { width } = Dimensions.get('window');
+    const { width } = Dimensions.get("window");
     const { navigation } = this.props;
     const item = this.props.navigation.getParam("e");
     return (
-      <View style={{ flex: 1, justifyContent: 'center' }}>
+      <View style={{ flex: 1, justifyContent: "center" }}>
         <Text>DETALHES TELA</Text>
         <Text style={{ padding: 20 }}>
           {item[1].nome} - R$ {item[1].valor}
@@ -20,15 +26,18 @@ export class Detalhes extends React.Component {
           // onPress={() => this.setState({ checked: !this.state.checked })}
         />
 
-        <Image source={{ uri: item[1].image }} style={{ width, height: 300 }} />
+        <Image 
+          source={{ uri: item[1].image }} style={{ width, height: 300 }}
+          resizeMode="center"
+          
+        />
 
         <TouchableOpacity
           style={styles.submitButton}
-          onPress={() => navigation.navigate('EditItems', {item})}
+          onPress={() => navigation.navigate("EditItems", { item })}
         >
           <Text style={styles.submitButtonText}> Editar </Text>
         </TouchableOpacity>
-
       </View>
     );
   }
