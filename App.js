@@ -1,6 +1,6 @@
 import React from 'react';
 import { createStackNavigator, createAppContainer } from 'react-navigation';
-import { Home, Detalhes, AddItems, EditItems, ImageUpload } from './src/screens';
+import { Home, Detalhes, AddItems, EditItems, ImageUpload, Loader } from './src/screens';
 
 console.disableYellowBox = true;
 const App = createStackNavigator(
@@ -33,6 +33,12 @@ const App = createStackNavigator(
       screen: ImageUpload,
       navigationOptions: {
         title: 'Enviar foto'
+      }
+    },
+    Loader: {
+      screen: Loader,
+      navigationOptions: {
+        title: 'Carregando foto'
       }
     }
 

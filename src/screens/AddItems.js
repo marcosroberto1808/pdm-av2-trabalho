@@ -7,8 +7,10 @@ import {
   StyleSheet,
   Alert,
   Image,
-  ScrollView
+  ActivityIndicator,
+  Button
 } from "react-native";
+import Modal from "react-native-modal";
 import { CheckBox } from "react-native-elements";
 import { ImagePicker, Permissions } from "expo";
 import { addItem } from "../services/ItemService";
@@ -21,7 +23,8 @@ const initialState = {
   image: "",
   checked: false,
   uploading: false,
-  tmp_uri: ""
+  tmp_uri: "",
+  loading: false
 };
 
 export class AddItems extends React.Component {
@@ -33,7 +36,7 @@ export class AddItems extends React.Component {
     this.setState(initialState);
   }
 
-  // permissoes
+  // Permissoes
   async componentDidMount() {
     await Permissions.askAsync(Permissions.CAMERA_ROLL);
     await Permissions.askAsync(Permissions.CAMERA);
@@ -50,6 +53,34 @@ export class AddItems extends React.Component {
 
     // this._handleImagePicked(pickerResult);
   };
+
+  handlerSalvarDados = async () => {
+    this.setState({ loading: true })
+    await this._handleImagePicked(this.state.tmp_uri);
+    await addItem(
+      this.state.nome,
+      this.state.valor,
+      this.state.image,
+      this.state.checked
+    );
+    this.setState({ loading: false })
+    await Alert.alert("Confirmação", "Produto salvo com sucesso", [
+      {
+        text: "Voltar para Home",
+        onPress: () => {
+          this.props.navigation.navigate("Home");
+          this.resetState()
+        }
+      },
+      {
+        text: "Adicionar outro",
+        onPress: () => {
+          this.props.navigation.navigate("AddItems");
+          this.resetState()
+        }
+      }
+    ]);
+  }
 
   // Pegar da galeria
   pickImage = async () => {
@@ -68,8 +99,6 @@ export class AddItems extends React.Component {
   _handleImagePicked = async pickerResult => {
     try {
       this.setState({ uploading: true });
-      // console.log(pickerResult.uri);
-      // console.log(this.state.tmp_uri.uri);
 
       if (!pickerResult.cancelled) {
         uploadUrl = await uploadImageAsync(pickerResult.uri);
@@ -81,13 +110,6 @@ export class AddItems extends React.Component {
       alert("Upload failed, sorry :(");
     } finally {
       this.setState({ uploading: false });
-      // Salvar item no firebase
-      addItem(
-        this.state.nome,
-        this.state.valor,
-        this.state.image,
-        this.state.checked
-      );
     }
   };
 
@@ -109,7 +131,7 @@ export class AddItems extends React.Component {
     });
   };
 
-  handleSubmit() {
+  handleSubmit = async () => {
     Alert.alert(
       "Confirmação",
       "Deseja salvar este item?",
@@ -122,26 +144,9 @@ export class AddItems extends React.Component {
         {
           text: "OK",
           onPress: () => {
-            
-            // Upload tmp_uri no firebase storage
-            this._handleImagePicked(this.state.tmp_uri);
+            // Salvar item
+            this.handlerSalvarDados();
 
-            
-
-            Alert.alert("Confirmação", "Produto salvo com sucesso", [
-              {
-                text: "Voltar para Home",
-                onPress: () => {
-                  this.props.navigation.navigate("Home");
-                }
-              },
-              {
-                text: "Adicionar outro",
-                onPress: () => {
-                  this.props.navigation.navigate("AddItems");
-                }
-              }
-            ]);
             console.log("OK Pressed");
           }
         }
@@ -150,18 +155,18 @@ export class AddItems extends React.Component {
     );
   }
 
-  checkDados = (nome, valor, imagem, checked) => {
-    Alert.alert(
-      "nome: " +
-        nome +
-        " valor: " +
-        valor +
-        " img: " +
-        imagem +
-        " destaque: " +
-        checked
-    );
-  };
+  // checkDados = (nome, valor, imagem, checked) => {
+  //   Alert.alert(
+  //     "nome: " +
+  //     nome +
+  //     " valor: " +
+  //     valor +
+  //     " img: " +
+  //     imagem +
+  //     " destaque: " +
+  //     checked
+  //   );
+  // };
 
   render() {
     console.log(this.state);
@@ -207,6 +212,40 @@ export class AddItems extends React.Component {
             resizeMode="center"
           />
 
+          <View>
+            <Modal isVisible={this.state.loading}>
+              <View style={{
+                flex: 1,
+                flexDirection: 'column',
+                justifyContent: 'center',
+                // alignItems: 'center'
+              }}>
+
+                <View style={stylesModal.content}>
+                  <Text>Salvando dados</Text>
+                  <ActivityIndicator size="large" color="#0000ff" />
+                  {/* <Button title="Hide modal"
+                    onPress={() => {
+                      this.setState({ loading: !this.state.loading })
+                    }
+                    } /> */}
+
+                </View>
+              </View>
+            </Modal>
+          </View>
+
+          {/* <TouchableOpacity
+            style={styles.submitButton}
+            onPress={() => {
+              this.setState({ loading: !this.state.loading })
+              // this.props.navigation.navigate("Loader")
+            }
+            }
+          >
+            <Text style={styles.submitButtonText}>Loading</Text>
+          </TouchableOpacity> */}
+          
           <TouchableOpacity
             style={styles.submitButton}
             onPress={this.pickImage}
@@ -221,7 +260,7 @@ export class AddItems extends React.Component {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.submitButton}
           onPress={() =>
             this.checkDados(
@@ -233,7 +272,8 @@ export class AddItems extends React.Component {
           }
         >
           <Text style={styles.submitButtonText}> Verificar </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
+
         <TouchableOpacity
           style={styles.submitButton}
           onPress={() => this.resetState()}
@@ -272,13 +312,28 @@ const styles = StyleSheet.create({
   }
 });
 
+const stylesModal = StyleSheet.create({
+  content: {
+    backgroundColor: 'white',
+    padding: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 4,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    height: 200,
+
+  }
+});
+
+
+
 async function uploadImageAsync(uri) {
   const blob = await new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.onload = function() {
+    xhr.onload = function () {
       resolve(xhr.response);
     };
-    xhr.onerror = function(e) {
+    xhr.onerror = function (e) {
       console.log(e);
       reject(new TypeError("Network request failed"));
     };
