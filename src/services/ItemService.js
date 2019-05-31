@@ -1,6 +1,7 @@
 // ItemService.js
-
+import uuid from "uuid";
 import { db } from '../config/db';
+import { storage } from '../config/db';
 
 // Adicionar item
 export const addItem =  (nome_input, valor_input, img_input, destaque_input) => {
@@ -27,3 +28,41 @@ export const updateItem =  (item_key, nome_input, valor_input, img_input, destaq
         "destaque": destaque_input
     });
 }
+
+
+// Salvar Imagem
+
+export const salvarImagemAsync = async (uri) => {
+    const blob = await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        resolve(xhr.response);
+      };
+      xhr.onerror = function (e) {
+        console.log(e);
+        reject(new TypeError("Network request failed"));
+      };
+      xhr.responseType = "blob";
+      xhr.open("GET", uri, true);
+      xhr.send(null);
+    });
+  
+    const ref = storage.ref().child("images/" + uuid.v4());
+    const snapshot = await ref.put(blob);
+  
+    blob.close();
+  
+    return await snapshot.ref.getDownloadURL();
+  }
+
+// Apagar imagem
+export const deletarImagemAsync = async (imageUrl) => {
+    let name = imageUrl.substr(
+        imageUrl.indexOf("%2F") + 3,
+        imageUrl.indexOf("?") - (imageUrl.indexOf("%2F") + 3)
+    );
+    name = name.replace("%20", " ");
+    let storagePath = storage.ref();
+   
+    return await storagePath.child(`images/${name}`).delete();
+  };

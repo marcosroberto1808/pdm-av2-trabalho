@@ -1,3 +1,4 @@
+// AddItems.js
 import React from "react";
 import {
   View,
@@ -13,9 +14,7 @@ import {
 import Modal from "react-native-modal";
 import { CheckBox } from "react-native-elements";
 import { ImagePicker, Permissions } from "expo";
-import { addItem } from "../services/ItemService";
-import { storage } from "../config/db";
-import uuid from "uuid";
+import { addItem, salvarImagemAsync } from "../services/ItemService";
 
 const initialState = {
   nome: "",
@@ -101,7 +100,7 @@ export class AddItems extends React.Component {
       this.setState({ uploading: true });
 
       if (!pickerResult.cancelled) {
-        uploadUrl = await uploadImageAsync(pickerResult.uri);
+        uploadUrl = await salvarImagemAsync(pickerResult.uri);
         this.setState({ image: uploadUrl });
         console.log(this.state.image);
       }
@@ -324,28 +323,3 @@ const stylesModal = StyleSheet.create({
 
   }
 });
-
-
-
-async function uploadImageAsync(uri) {
-  const blob = await new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.onload = function () {
-      resolve(xhr.response);
-    };
-    xhr.onerror = function (e) {
-      console.log(e);
-      reject(new TypeError("Network request failed"));
-    };
-    xhr.responseType = "blob";
-    xhr.open("GET", uri, true);
-    xhr.send(null);
-  });
-
-  const ref = storage.ref().child("images/" + uuid.v4());
-  const snapshot = await ref.put(blob);
-
-  blob.close();
-
-  return await snapshot.ref.getDownloadURL();
-}
