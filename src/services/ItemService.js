@@ -57,12 +57,13 @@ export const salvarImagemAsync = async (uri) => {
 
 // Apagar imagem
 export const deletarImagemAsync = async (imageUrl) => {
+    console.log(imageUrl);
+    
     let name = imageUrl.substr(
         imageUrl.indexOf("%2F") + 3,
         imageUrl.indexOf("?") - (imageUrl.indexOf("%2F") + 3)
     );
     name = name.replace("%20", " ");
     let storagePath = storage.ref();
-   
     return await storagePath.child(`images/${name}`).delete();
   };
