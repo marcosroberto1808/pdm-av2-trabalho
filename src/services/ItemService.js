@@ -28,6 +28,17 @@ export const updateItem =  (item_key, nome_input, valor_input, img_input, destaq
         "destaque": destaque_input
     });
 }
+// Atualizar Usuario
+export const updateUser =  (item_key, nome, email, telefone, data_nascimento, imagem) => {
+  db.ref('/usuarios/' + item_key).set(
+      {
+      "nome": nome,
+      "email": email,
+      "telefone": telefone,
+      "data_nascimento": data_nascimento,
+      "imagem": imagem,
+  });
+}
 
 
 // Salvar Imagem
