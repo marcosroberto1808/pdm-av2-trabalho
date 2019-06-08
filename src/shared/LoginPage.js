@@ -136,6 +136,10 @@ export class LoginPage extends React.Component {
             }
           </View>
         </View>
+        <View style={{ justifyContent: 'center',}}>
+          <Text style={{ color: 'white', textAlign: 'center' }} >© Copyright 2019 Marcos Roberto Sistemas</Text>
+          <Text style={{ color: 'white', textAlign: 'center' }} >Todos os Direitos Reservados</Text>
+        </View>
       </LinearGradient>
     );
   }

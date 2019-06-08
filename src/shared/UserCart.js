@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo';
 
 
 const colors = ['#4c669f', '#3b5998', '#192f6a']
-const title = 'Carrinho'
+const title = 'Lista de compras - Em construção'
 
 
 export class UserCart extends React.Component {
