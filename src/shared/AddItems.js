@@ -32,6 +32,7 @@ const initialState = {
 export class AddItems extends React.Component {
   static navigationOptions = {
     header: null,
+
   };
 
   constructor(props) {

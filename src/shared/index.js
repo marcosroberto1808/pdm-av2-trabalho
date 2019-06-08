@@ -5,3 +5,4 @@ export * from './EditItems';
 export * from './SearchItems';
 export * from './UserCart';
 export * from './UserProfile';
+export * from './LoginPage';
