@@ -36,9 +36,6 @@ export class LoginPage extends React.Component {
       const {
         type,
         token,
-        expires,
-        permissions,
-        declinedPermissions,
       } = await Expo.Facebook.logInWithReadPermissionsAsync('365024997476875', {
         permissions: ['public_profile'],
       });
@@ -54,7 +51,6 @@ export class LoginPage extends React.Component {
         this.setState({ userInfo });
         this.setState({ userProfileImage: "https://graph.facebook.com/" + userInfo.id + "/picture?height=300" });
 
-        // this.renderImage();
       } else {
         // type === 'cancel'
       }
@@ -119,6 +115,18 @@ export class LoginPage extends React.Component {
                     onPress={() => {
                       console.log(this.state)
                       this.props.navigation.navigate("Home", this.state.userInfo)
+
+                    }
+                    }
+                  />
+                </View>
+                <View style={{margin: 40}}>
+                  <Button
+                    title=" Desconectar"
+                    onPress={() => {
+                      console.log(this.state)
+                      firebase.auth().signOut()
+                      this.resetState()
 
                     }
                     }
