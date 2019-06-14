@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { createBottomTabNavigator, createStackNavigator } from 'react-navigation';
-import { Home, Detalhes, AddItems, EditItems, SearchItems, UserCart, UserProfile, LoginPage } from '../shared';
-import tabBarIcon from '../shared/tabBarIcon';
+import { Home, Detalhes, AddItems, EditItems, SearchItems, UserCart, UserProfile, LoginPage } from '../screens';
+import tabBarIcon from '../screens/tabBarIcon';
 import { FontAwesome } from '@expo/vector-icons';
 
 // https://reactnavigation.org/docs/en/bottom-tab-navigator.html
