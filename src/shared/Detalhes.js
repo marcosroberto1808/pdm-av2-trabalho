@@ -4,7 +4,8 @@ import {
     Text,
     Image,
     TouchableOpacity,
-    StyleSheet
+    StyleSheet,
+    Alert
 } from "react-native";
 import { CheckBox } from "react-native-elements";
 import { LinearGradient } from 'expo';
@@ -42,18 +43,38 @@ export class Detalhes extends React.Component {
         await this.props.navigation.addListener('willFocus', this._fetchData);
     }
 
+    // Carregar dados
     _fetchData = () => {
-        const item = this.props.navigation.getParam("item");
-        setTimeout(() => {
-            // console.log('Our data is fetched');
-            this.setState({
-                id: item[0],
-                nome: item[1].nome,
-                valor: item[1].valor,
-                image: item[1].image,
-                checked: item[1].destaque,
-            })
-        }, 120)
+        if (this.props.navigation.getParam("item")){
+
+            const item = this.props.navigation.getParam("item");
+            setTimeout(() => {
+                this.setState({
+                    id: item[0],
+                    nome: item[1].nome,
+                    valor: item[1].valor,
+                    image: item[1].image,
+                    checked: item[1].destaque,
+                })
+            }, 120)
+        }
+        else {
+            this.resetState()
+            Alert.alert(
+                "Produto não selecionado",
+                "Selecione um produto na tela inicial.",
+                [
+                  {
+                    text: "OK",
+                    onPress: () => {
+                      // Voltar para HOME
+                      this.props.navigation.navigate("Home");
+                    }
+                  }
+                ],
+                { cancelable: false }
+              );
+        }
     }
 
     onEditPress = () => {
